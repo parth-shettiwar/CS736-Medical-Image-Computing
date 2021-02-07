@@ -1,0 +1,310 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>myMainScript</title><meta name="generator" content="MATLAB 9.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-02-06"><meta name="DC.source" content="myMainScript.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput">Z = load(<span class="string">"../data/brainMRIslice.mat"</span>);
+Noisy = Z.brainMRIsliceNoisy;
+Gt = Z.brainMRIsliceOrig;
+
+RMSE_initial = sqrt(sum(sum((abs(Noisy)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+
+fprintf(<span class="string">'The RRMSE between the noisy and the noiseless image is %d \n\n'</span>, RMSE_initial);
+
+alpha_1 = 0.14;
+gamma_1 = 0.1;
+
+alpha_2 = 0.4;
+gamma_2 = 0.07;
+
+alpha_3 = 0.926;
+gamma_3 = 0.0035;
+
+fprintf(<span class="string">'For the Quadratic MRF Prior, the optimal values are: alpha = %d \n'</span>, alpha_1);
+
+fprintf(<span class="string">'For the Discontinuity-Adaptive Huber MRF Prior, the optimal values are: alpha = %d, gamma = %d \n'</span>, alpha_2, gamma_2);
+
+fprintf(<span class="string">'For the Discontinuity-Adaptive MRF Prior, the optimal values are: alpha = %d, gamma = %d \n\n'</span>, alpha_3, gamma_3);
+
+
+[denoisedImg1, loss_History_1] = Q1(Noisy, alpha_1, gamma_1, 1);
+[denoisedImg1_1, ~] = Q1(Noisy, 1.2*alpha_1, gamma_1, 1);
+[denoisedImg1_2, ~] = Q1(Noisy, 0.8*alpha_1, gamma_1, 1);
+
+RMSE1 = sqrt(sum(sum((abs(denoisedImg1)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE1_1 = sqrt(sum(sum((abs(denoisedImg1_1)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE1_2 = sqrt(sum(sum((abs(denoisedImg1_2)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+
+fprintf(<span class="string">'Quadratic MRF prior: RMSE(optimum_alpha) = %d \n'</span>, RMSE1)
+fprintf(<span class="string">'Quadratic MRF prior: RMSE(1.2*optimum_alpha) = %d \n'</span>, RMSE1_1)
+fprintf(<span class="string">'Quadratic MRF prior: RMSE(0.8*optimum_alpha) = %d \n\n'</span>, RMSE1_2)
+
+[denoisedImg2, loss_History_2] = Q1(Noisy, alpha_2, gamma_2, 2);
+[denoisedImg2_1, ~] = Q1(Noisy, 1.2*alpha_2, gamma_2, 2);
+[denoisedImg2_2, ~] = Q1(Noisy, 0.8*alpha_2, gamma_2, 2);
+[denoisedImg2_3, ~] = Q1(Noisy, alpha_2, 1.2*gamma_2, 2);
+[denoisedImg2_4, ~] = Q1(Noisy, alpha_2, 0.8*gamma_2, 2);
+
+RMSE2 = sqrt(sum(sum((abs(denoisedImg2)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE2_1 = sqrt(sum(sum((abs(denoisedImg2_1)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE2_2 = sqrt(sum(sum((abs(denoisedImg2_2)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE2_3 = sqrt(sum(sum((abs(denoisedImg2_3)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE2_4 = sqrt(sum(sum((abs(denoisedImg2_4)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+
+fprintf(<span class="string">'Discontinuity-Adaptive Huber MRF prior: RMSE(optimum_alpha, optimum_gamma) = %d \n'</span>, RMSE2)
+fprintf(<span class="string">'Discontinuity-Adaptive Huber MRF prior: RMSE(1.2*optimum_alpha, optimum_gamma) = %d \n'</span>, RMSE2_1)
+fprintf(<span class="string">'Discontinuity-Adaptive Huber MRF prior: RMSE(0.8*optimum_alpha, optimum_gamma) = %d \n'</span>, RMSE2_2)
+fprintf(<span class="string">'Discontinuity-Adaptive Huber MRF prior: RMSE(optimum_alpha, 1.2*optimum_gamma) = %d \n'</span>, RMSE2_3)
+fprintf(<span class="string">'Discontinuity-Adaptive Huber MRF prior: RMSE(optimum_alpha, 0.8*optimum_gamma) = %d \n\n'</span>, RMSE2_4)
+
+[denoisedImg3, loss_History_3] = Q1(Noisy, alpha_3, gamma_3, 3);
+[denoisedImg3_1, ~] = Q1(Noisy, 1.2*alpha_3, gamma_3, 3);
+[denoisedImg3_2, ~] = Q1(Noisy, 0.8*alpha_3, gamma_3, 3);
+[denoisedImg3_3, ~] = Q1(Noisy, alpha_3, 1.2*gamma_3, 3);
+[denoisedImg3_4, ~] = Q1(Noisy, alpha_3, 0.8*gamma_3, 3);
+
+RMSE3 = sqrt(sum(sum((abs(denoisedImg3)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE3_1 = sqrt(sum(sum((abs(denoisedImg3_1)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE3_2 = sqrt(sum(sum((abs(denoisedImg3_2)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE3_3 = sqrt(sum(sum((abs(denoisedImg3_3)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE3_4 = sqrt(sum(sum((abs(denoisedImg3_4)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+
+fprintf(<span class="string">'Discontinuity-Adaptive MRF prior: RMSE(optimum_alpha, optimum_gamma) = %d \n'</span>, RMSE3)
+fprintf(<span class="string">'Discontinuity-Adaptive MRF prior: RMSE(1.2*optimum_alpha, optimum_gamma) = %d \n'</span>, RMSE3_1)
+fprintf(<span class="string">'Discontinuity-Adaptive MRF prior: RMSE(0.8*optimum_alpha, optimum_gamma) = %d \n'</span>, RMSE3_2)
+fprintf(<span class="string">'Discontinuity-Adaptive MRF prior: RMSE(optimum_alpha, 1.2*optimum_gamma) = %d \n'</span>, RMSE3_3)
+fprintf(<span class="string">'Discontinuity-Adaptive MRF prior: RMSE(optimum_alpha, 0.8*optimum_gamma) = %d \n\n'</span>, RMSE3_4)
+
+figure();
+imshow(Gt)
+colormap(jet)
+title(<span class="string">'Noiseless Image'</span>)
+
+figure();
+imshow(Noisy)
+colormap(jet)
+title(<span class="string">'Noisy Image'</span>)
+
+figure();
+imshow(denoisedImg1)
+colormap(jet)
+title(<span class="string">'Image Denoised using Quadratic prior'</span>)
+
+figure();
+imshow(denoisedImg2)
+colormap(jet)
+title(<span class="string">'Image Denoised using Huber prior'</span>)
+
+figure();
+imshow(denoisedImg3)
+colormap(jet)
+title(<span class="string">'Image Denoised using Discontinuity-Adaptive prior'</span>)
+
+figure();
+plot(loss_History_1)
+title(<span class="string">'Loss curve of Quadratic Prior based Denoising Algorithm'</span>)
+
+figure();
+plot(loss_History_2)
+title(<span class="string">'Loss curve of Huber Prior based Denoising Algorithm'</span>)
+
+figure();
+plot(loss_History_3)
+title(<span class="string">'Loss curve of Discontinuity-Adaptive Prior based Denoising Algorithm'</span>)
+</pre><pre class="codeoutput">The RRMSE between the noisy and the noiseless image is 1.424265e-01 
+
+For the Quadratic MRF Prior, the optimal values are: alpha = 1.400000e-01 
+For the Discontinuity-Adaptive Huber MRF Prior, the optimal values are: alpha = 4.000000e-01, gamma = 7.000000e-02 
+For the Discontinuity-Adaptive MRF Prior, the optimal values are: alpha = 9.260000e-01, gamma = 3.500000e-03 
+
+Quadratic MRF prior: RMSE(optimum_alpha) = 1.223560e-01 
+Quadratic MRF prior: RMSE(1.2*optimum_alpha) = 1.230681e-01 
+Quadratic MRF prior: RMSE(0.8*optimum_alpha) = 1.226498e-01 
+
+Discontinuity-Adaptive Huber MRF prior: RMSE(optimum_alpha, optimum_gamma) = 1.150522e-01 
+Discontinuity-Adaptive Huber MRF prior: RMSE(1.2*optimum_alpha, optimum_gamma) = 1.162078e-01 
+Discontinuity-Adaptive Huber MRF prior: RMSE(0.8*optimum_alpha, optimum_gamma) = 1.168492e-01 
+Discontinuity-Adaptive Huber MRF prior: RMSE(optimum_alpha, 1.2*optimum_gamma) = 1.157421e-01 
+Discontinuity-Adaptive Huber MRF prior: RMSE(optimum_alpha, 0.8*optimum_gamma) = 1.151210e-01 
+
+Discontinuity-Adaptive MRF prior: RMSE(optimum_alpha, optimum_gamma) = 1.133278e-01 
+Discontinuity-Adaptive MRF prior: RMSE(1.2*optimum_alpha, optimum_gamma) = 1.330525e-01 
+Discontinuity-Adaptive MRF prior: RMSE(0.8*optimum_alpha, optimum_gamma) = 1.290349e-01 
+Discontinuity-Adaptive MRF prior: RMSE(optimum_alpha, 1.2*optimum_gamma) = 1.138681e-01 
+Discontinuity-Adaptive MRF prior: RMSE(optimum_alpha, 0.8*optimum_gamma) = 1.139991e-01 
+
+</pre><img vspace="5" hspace="5" src="myMainScript_01.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_02.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_03.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_04.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_05.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_06.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_07.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_08.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+Z = load("../data/brainMRIslice.mat");
+Noisy = Z.brainMRIsliceNoisy;
+Gt = Z.brainMRIsliceOrig;
+
+RMSE_initial = sqrt(sum(sum((abs(Noisy)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+
+fprintf('The RRMSE between the noisy and the noiseless image is %d \n\n', RMSE_initial);
+
+alpha_1 = 0.14;
+gamma_1 = 0.1;
+
+alpha_2 = 0.4;
+gamma_2 = 0.07;
+
+alpha_3 = 0.926;
+gamma_3 = 0.0035;
+
+fprintf('For the Quadratic MRF Prior, the optimal values are: alpha = %d \n', alpha_1);
+
+fprintf('For the Discontinuity-Adaptive Huber MRF Prior, the optimal values are: alpha = %d, gamma = %d \n', alpha_2, gamma_2);
+
+fprintf('For the Discontinuity-Adaptive MRF Prior, the optimal values are: alpha = %d, gamma = %d \n\n', alpha_3, gamma_3);
+
+
+[denoisedImg1, loss_History_1] = Q1(Noisy, alpha_1, gamma_1, 1);
+[denoisedImg1_1, ~] = Q1(Noisy, 1.2*alpha_1, gamma_1, 1);
+[denoisedImg1_2, ~] = Q1(Noisy, 0.8*alpha_1, gamma_1, 1);
+
+RMSE1 = sqrt(sum(sum((abs(denoisedImg1)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE1_1 = sqrt(sum(sum((abs(denoisedImg1_1)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE1_2 = sqrt(sum(sum((abs(denoisedImg1_2)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+
+fprintf('Quadratic MRF prior: RMSE(optimum_alpha) = %d \n', RMSE1)
+fprintf('Quadratic MRF prior: RMSE(1.2*optimum_alpha) = %d \n', RMSE1_1)
+fprintf('Quadratic MRF prior: RMSE(0.8*optimum_alpha) = %d \n\n', RMSE1_2)
+
+[denoisedImg2, loss_History_2] = Q1(Noisy, alpha_2, gamma_2, 2);
+[denoisedImg2_1, ~] = Q1(Noisy, 1.2*alpha_2, gamma_2, 2);
+[denoisedImg2_2, ~] = Q1(Noisy, 0.8*alpha_2, gamma_2, 2);
+[denoisedImg2_3, ~] = Q1(Noisy, alpha_2, 1.2*gamma_2, 2);
+[denoisedImg2_4, ~] = Q1(Noisy, alpha_2, 0.8*gamma_2, 2);
+
+RMSE2 = sqrt(sum(sum((abs(denoisedImg2)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE2_1 = sqrt(sum(sum((abs(denoisedImg2_1)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE2_2 = sqrt(sum(sum((abs(denoisedImg2_2)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE2_3 = sqrt(sum(sum((abs(denoisedImg2_3)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE2_4 = sqrt(sum(sum((abs(denoisedImg2_4)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+
+fprintf('Discontinuity-Adaptive Huber MRF prior: RMSE(optimum_alpha, optimum_gamma) = %d \n', RMSE2)
+fprintf('Discontinuity-Adaptive Huber MRF prior: RMSE(1.2*optimum_alpha, optimum_gamma) = %d \n', RMSE2_1)
+fprintf('Discontinuity-Adaptive Huber MRF prior: RMSE(0.8*optimum_alpha, optimum_gamma) = %d \n', RMSE2_2)
+fprintf('Discontinuity-Adaptive Huber MRF prior: RMSE(optimum_alpha, 1.2*optimum_gamma) = %d \n', RMSE2_3)
+fprintf('Discontinuity-Adaptive Huber MRF prior: RMSE(optimum_alpha, 0.8*optimum_gamma) = %d \n\n', RMSE2_4)
+
+[denoisedImg3, loss_History_3] = Q1(Noisy, alpha_3, gamma_3, 3);
+[denoisedImg3_1, ~] = Q1(Noisy, 1.2*alpha_3, gamma_3, 3);
+[denoisedImg3_2, ~] = Q1(Noisy, 0.8*alpha_3, gamma_3, 3);
+[denoisedImg3_3, ~] = Q1(Noisy, alpha_3, 1.2*gamma_3, 3);
+[denoisedImg3_4, ~] = Q1(Noisy, alpha_3, 0.8*gamma_3, 3);
+
+RMSE3 = sqrt(sum(sum((abs(denoisedImg3)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE3_1 = sqrt(sum(sum((abs(denoisedImg3_1)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE3_2 = sqrt(sum(sum((abs(denoisedImg3_2)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE3_3 = sqrt(sum(sum((abs(denoisedImg3_3)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+RMSE3_4 = sqrt(sum(sum((abs(denoisedImg3_4)-abs(Gt)).^2)))/sqrt(sum(sum(abs(Gt).^2)));
+
+fprintf('Discontinuity-Adaptive MRF prior: RMSE(optimum_alpha, optimum_gamma) = %d \n', RMSE3)
+fprintf('Discontinuity-Adaptive MRF prior: RMSE(1.2*optimum_alpha, optimum_gamma) = %d \n', RMSE3_1)
+fprintf('Discontinuity-Adaptive MRF prior: RMSE(0.8*optimum_alpha, optimum_gamma) = %d \n', RMSE3_2)
+fprintf('Discontinuity-Adaptive MRF prior: RMSE(optimum_alpha, 1.2*optimum_gamma) = %d \n', RMSE3_3)
+fprintf('Discontinuity-Adaptive MRF prior: RMSE(optimum_alpha, 0.8*optimum_gamma) = %d \n\n', RMSE3_4)
+
+figure();
+imshow(Gt)
+colormap(jet)
+title('Noiseless Image')
+
+figure();
+imshow(Noisy)
+colormap(jet)
+title('Noisy Image')
+
+figure();
+imshow(denoisedImg1)
+colormap(jet)
+title('Image Denoised using Quadratic prior')
+
+figure();
+imshow(denoisedImg2)
+colormap(jet)
+title('Image Denoised using Huber prior')
+
+figure();
+imshow(denoisedImg3)
+colormap(jet)
+title('Image Denoised using Discontinuity-Adaptive prior')
+
+figure();
+plot(loss_History_1)
+title('Loss curve of Quadratic Prior based Denoising Algorithm')
+ 
+figure();
+plot(loss_History_2)
+title('Loss curve of Huber Prior based Denoising Algorithm')
+ 
+figure();
+plot(loss_History_3)
+title('Loss curve of Discontinuity-Adaptive Prior based Denoising Algorithm')
+##### SOURCE END #####
+--></body></html>
