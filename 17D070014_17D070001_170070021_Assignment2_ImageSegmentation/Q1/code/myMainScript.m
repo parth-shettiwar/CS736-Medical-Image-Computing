@@ -1,0 +1,150 @@
+inp = load("../data/assignmentSegmentBrain.mat");
+q = 2;
+
+img_mri = inp.imageData;
+mask = inp.imageMask;
+img_mri_masked = img_mri.*mask;
+ne_mask = fspecial('gaussian',256,1.5);
+[a,b] = find(ne_mask>0);
+ter = img_mri_masked(img_mri_masked>0);
+len = size(ter);
+[ii,init_means] = kmeans(ter,3);
+[init_membership,final,bias,res_image,membership,objlist,means] = Q1(img_mri_masked,mask,init_means,ne_mask,q);
+
+pause(0.1);
+%% (a) q value
+fprintf("q = %d.\n",q);
+% q value is a hyperparameter. The above value of q was chosen since it gave the most optimised cost function
+% and visually appealing Final image.
+pause(0.1);
+%% (b) Neighbourhood mask
+% Following is the neighbourhood mask used. It is gaussian as was suggested
+% to use in slides with sigma  = 1.5, which is again a hyperparameter.
+ne_mask_plot = ne_mask(min(a):max(a),min(b):max(b));
+imagesc(ne_mask_plot);
+colormap(gray);
+title("Neighborhood Mask");
+pause(0.1);
+%% (c) Initial Means
+fprintf("Initial Means =\n");
+fprintf("%d\n",init_means(1));
+fprintf("%d\n",init_means(2));
+fprintf("%d\n",init_means(3));
+% Using the k-means algorithm, we got our initial class means estimate. We
+% used 3 centres as paramter to the k-means functions after passing only
+% foreground values/pixels from the corrupted input image. 
+% k-means would produce ideal cluster centres in case when bias is not
+% there and hence is a good initial estimate to start with. Also at start
+% we have no labeled data, we needed a unsupervosed algorithm and k-means
+% perfectly plays the role.
+pause(0.1);
+%% (d) Initial estimate for memberships
+%Following are the initial membership values shown as images. We used the
+%plain FCM clustering algorithm without bias field correction. The
+%intuition behind is again the fact that we start by assuming there is no
+%bias and get a good estimate for the memeberships to the 3 classes. The
+%implementation is done as mentioned in slides for FCM clustering with the
+%means predicted as by the k-means algorithm.
+
+figure();
+imshow(squeeze(init_membership(1,:,:)));
+title("Initial Membership for Class = 1");
+
+pause(0.1);
+figure();
+imshow(squeeze(init_membership(2,:,:)));
+title("Initial Membership for Class = 2");
+
+pause(0.1);
+figure();
+imshow(squeeze(init_membership(3,:,:)));
+title("Initial Membership for Class = 3");
+
+pause(0.1);
+%% (e) Objective Function Value vs Iteration
+% As we can see, the value of the objective function reduces. We have used
+% the termination criteria as when the change in objective function as
+% compared to previous iteration is less than 1e-4.
+
+i = 1;
+while(objlist(i)>0)
+fprintf("Objective Function Value at iteration %d = %d\n",i,objlist(i));
+i = i+1;
+end    
+
+figure();
+plot(objlist(objlist>0));
+title("Objective function value vs the iteration number")
+
+%% (f) Final Results
+
+pause(0.1);
+figure();
+imshow(inp.imageData);
+title("Corrupted image");
+
+pause(0.1);
+figure();
+imshow(squeeze(membership(1,:,:)));
+title("Optimal Membership for Class = 1");
+
+pause(0.1);
+figure();
+imshow(squeeze(membership(2,:,:)));
+title("Optimal Membership for Class = 2");
+
+pause(0.1);
+figure();
+imshow(squeeze(membership(3,:,:)));
+title("Optimal Membership for Class = 3");
+
+pause(0.1);
+figure();
+imagesc(permute(membership,[2,3,1]));
+title('Final Segmentation based on membership'); 
+
+pause(0.1);
+figure();
+imshow(bias);
+title("Optimal bias-field image estimate");
+
+pause(0.1);
+figure();
+imshow(final);
+title("Bias-removed image");
+
+pause(0.1);
+figure();
+imshow(res_image);
+title("Residual Image");
+
+%% (f) Final Means
+fprintf("Final Means =\n");
+fprintf("%d\n",means(1));
+fprintf("%d\n",means(2));
+fprintf("%d\n",means(3));
+fprintf("\n");
+pause(0.1);
+%% Question
+%Explain if the formulation discussed in class leads to a unique solution. If not, (i) pro-
+%pose a scheme (in theory) to ensure a unique solution and (ii) implement it.
+
+%% Solution 
+%No, it wont lead to a unique solution. A simple counter case can be
+%taken as follows: suppose the final means = [a,b,c] is an optimal solution
+%the any permutation of it, say means = [c,a,b] is also an optimal
+%solution, with the corresponding channels in membership matrix permuted in same
+%way. This final solution directly depends on the initial estimates of the
+%means (Can be seen from the update equations). The final order of the means follows the same order as the initial means. 
+%Hence, by fixing the ordering  of the initial means, say in increasing
+%order, we would always achieve the same final optimum solution for means.
+
+%Implementation
+init_means_sorted = sort(init_means);
+[init_membership,final,bias,res_image,membership,objlist,sort_means] = Q1(img_mri_masked,mask,init_means_sorted,ne_mask,q);
+
+% Final Unique Means
+fprintf("Unique Means =\n");
+fprintf("%d\n",sort_means(1));
+fprintf("%d\n",sort_means(2));
+fprintf("%d\n",sort_means(3));

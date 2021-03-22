@@ -1,0 +1,415 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>myMainScript</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-03-23"><meta name="DC.source" content="myMainScript.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">(a) q value</a></li><li><a href="#3">(b) Neighbourhood mask</a></li><li><a href="#4">(c) Initial Means</a></li><li><a href="#5">(d) Initial estimate for memberships</a></li><li><a href="#6">(e) Objective Function Value vs Iteration</a></li><li><a href="#7">(f) Final Results</a></li><li><a href="#8">(f) Final Means</a></li><li><a href="#9">Question</a></li><li><a href="#10">Solution</a></li></ul></div><pre class="codeinput">inp = load(<span class="string">"../data/assignmentSegmentBrain.mat"</span>);
+q = 2;
+
+img_mri = inp.imageData;
+mask = inp.imageMask;
+img_mri_masked = img_mri.*mask;
+ne_mask = fspecial(<span class="string">'gaussian'</span>,256,1.5);
+[a,b] = find(ne_mask&gt;0);
+ter = img_mri_masked(img_mri_masked&gt;0);
+len = size(ter);
+[ii,init_means] = kmeans(ter,3);
+[init_membership,final,bias,res_image,membership,objlist,means] = Q1(img_mri_masked,mask,init_means,ne_mask,q);
+
+pause(0.1);
+</pre><pre class="codeoutput">Warning: Failed to converge in 100 iterations. 
+</pre><h2 id="2">(a) q value</h2><pre class="codeinput">fprintf(<span class="string">"q = %d.\n"</span>,q);
+<span class="comment">% q value is a hyperparameter. The above value of q was chosen since it gave the most optimised cost function</span>
+<span class="comment">% and visually appealing Final image.</span>
+pause(0.1);
+</pre><pre class="codeoutput">q = 2.
+</pre><h2 id="3">(b) Neighbourhood mask</h2><p>Following is the neighbourhood mask used. It is gaussian as was suggested to use in slides with sigma  = 1.5, which is again a hyperparameter.</p><pre class="codeinput">ne_mask_plot = ne_mask(min(a):max(a),min(b):max(b));
+imagesc(ne_mask_plot);
+colormap(gray);
+title(<span class="string">"Neighborhood Mask"</span>);
+pause(0.1);
+</pre><img vspace="5" hspace="5" src="myMainScript_01.png" alt=""> <h2 id="4">(c) Initial Means</h2><pre class="codeinput">fprintf(<span class="string">"Initial Means =\n"</span>);
+fprintf(<span class="string">"%d\n"</span>,init_means(1));
+fprintf(<span class="string">"%d\n"</span>,init_means(2));
+fprintf(<span class="string">"%d\n"</span>,init_means(3));
+<span class="comment">% Using the k-means algorithm, we got our initial class means estimate. We</span>
+<span class="comment">% used 3 centres as paramter to the k-means functions after passing only</span>
+<span class="comment">% foreground values/pixels from the corrupted input image.</span>
+<span class="comment">% k-means would produce ideal cluster centres in case when bias is not</span>
+<span class="comment">% there and hence is a good initial estimate to start with. Also at start</span>
+<span class="comment">% we have no labeled data, we needed a unsupervosed algorithm and k-means</span>
+<span class="comment">% perfectly plays the role.</span>
+pause(0.1);
+</pre><pre class="codeoutput">Initial Means =
+4.531302e-01
+6.341783e-01
+2.241592e-01
+</pre><h2 id="5">(d) Initial estimate for memberships</h2><pre class="codeinput"><span class="comment">%Following are the initial membership values shown as images. We used the</span>
+<span class="comment">%plain FCM clustering algorithm without bias field correction. The</span>
+<span class="comment">%intuition behind is again the fact that we start by assuming there is no</span>
+<span class="comment">%bias and get a good estimate for the memeberships to the 3 classes. The</span>
+<span class="comment">%implementation is done as mentioned in slides for FCM clustering with the</span>
+<span class="comment">%means predicted as by the k-means algorithm.</span>
+
+figure();
+imshow(squeeze(init_membership(1,:,:)));
+title(<span class="string">"Initial Membership for Class = 1"</span>);
+
+pause(0.1);
+figure();
+imshow(squeeze(init_membership(2,:,:)));
+title(<span class="string">"Initial Membership for Class = 2"</span>);
+
+pause(0.1);
+figure();
+imshow(squeeze(init_membership(3,:,:)));
+title(<span class="string">"Initial Membership for Class = 3"</span>);
+
+pause(0.1);
+</pre><img vspace="5" hspace="5" src="myMainScript_02.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_03.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_04.png" alt=""> <h2 id="6">(e) Objective Function Value vs Iteration</h2><p>As we can see, the value of the objective function reduces. We have used the termination criteria as when the change in objective function as compared to previous iteration is less than 1e-4.</p><pre class="codeinput">i = 1;
+<span class="keyword">while</span>(objlist(i)&gt;0)
+fprintf(<span class="string">"Objective Function Value at iteration %d = %d\n"</span>,i,objlist(i));
+i = i+1;
+<span class="keyword">end</span>
+
+figure();
+plot(objlist(objlist&gt;0));
+title(<span class="string">"Objective function value vs the iteration number"</span>)
+</pre><pre class="codeoutput">Objective Function Value at iteration 1 = 7.632564e+01
+Objective Function Value at iteration 2 = 5.065135e+01
+Objective Function Value at iteration 3 = 4.314672e+01
+Objective Function Value at iteration 4 = 4.039831e+01
+Objective Function Value at iteration 5 = 3.866529e+01
+Objective Function Value at iteration 6 = 3.741127e+01
+Objective Function Value at iteration 7 = 3.645378e+01
+Objective Function Value at iteration 8 = 3.574220e+01
+Objective Function Value at iteration 9 = 3.524361e+01
+Objective Function Value at iteration 10 = 3.490472e+01
+Objective Function Value at iteration 11 = 3.466684e+01
+Objective Function Value at iteration 12 = 3.450286e+01
+Objective Function Value at iteration 13 = 3.439090e+01
+Objective Function Value at iteration 14 = 3.431559e+01
+Objective Function Value at iteration 15 = 3.427429e+01
+Objective Function Value at iteration 16 = 3.425703e+01
+Objective Function Value at iteration 17 = 3.425223e+01
+Objective Function Value at iteration 18 = 3.425392e+01
+Objective Function Value at iteration 19 = 3.425974e+01
+Objective Function Value at iteration 20 = 3.426692e+01
+Objective Function Value at iteration 21 = 3.427355e+01
+Objective Function Value at iteration 22 = 3.427893e+01
+Objective Function Value at iteration 23 = 3.428333e+01
+Objective Function Value at iteration 24 = 3.428722e+01
+Objective Function Value at iteration 25 = 3.429036e+01
+Objective Function Value at iteration 26 = 3.429314e+01
+Objective Function Value at iteration 27 = 3.429552e+01
+Objective Function Value at iteration 28 = 3.429790e+01
+Objective Function Value at iteration 29 = 3.430006e+01
+Objective Function Value at iteration 30 = 3.430212e+01
+Objective Function Value at iteration 31 = 3.430367e+01
+Objective Function Value at iteration 32 = 3.430537e+01
+Objective Function Value at iteration 33 = 3.430655e+01
+Objective Function Value at iteration 34 = 3.430766e+01
+Objective Function Value at iteration 35 = 3.430853e+01
+Objective Function Value at iteration 36 = 3.430922e+01
+Objective Function Value at iteration 37 = 3.430995e+01
+Objective Function Value at iteration 38 = 3.431034e+01
+Objective Function Value at iteration 39 = 3.431083e+01
+Objective Function Value at iteration 40 = 3.431101e+01
+Objective Function Value at iteration 41 = 3.431121e+01
+Objective Function Value at iteration 42 = 3.431155e+01
+Objective Function Value at iteration 43 = 3.431175e+01
+Objective Function Value at iteration 44 = 3.431186e+01
+Objective Function Value at iteration 45 = 3.431192e+01
+</pre><img vspace="5" hspace="5" src="myMainScript_05.png" alt=""> <h2 id="7">(f) Final Results</h2><pre class="codeinput">pause(0.1);
+figure();
+imshow(inp.imageData);
+title(<span class="string">"Corrupted image"</span>);
+
+pause(0.1);
+figure();
+imshow(squeeze(membership(1,:,:)));
+title(<span class="string">"Optimal Membership for Class = 1"</span>);
+
+pause(0.1);
+figure();
+imshow(squeeze(membership(2,:,:)));
+title(<span class="string">"Optimal Membership for Class = 2"</span>);
+
+pause(0.1);
+figure();
+imshow(squeeze(membership(3,:,:)));
+title(<span class="string">"Optimal Membership for Class = 3"</span>);
+
+pause(0.1);
+figure();
+imagesc(permute(membership,[2,3,1]));
+title(<span class="string">'Final Segmentation based on membership'</span>);
+
+pause(0.1);
+figure();
+imshow(bias);
+title(<span class="string">"Optimal bias-field image estimate"</span>);
+
+pause(0.1);
+figure();
+imshow(final);
+title(<span class="string">"Bias-removed image"</span>);
+
+pause(0.1);
+figure();
+imshow(res_image);
+title(<span class="string">"Residual Image"</span>);
+</pre><img vspace="5" hspace="5" src="myMainScript_06.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_07.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_08.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_09.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_10.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_11.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_12.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_13.png" alt=""> <h2 id="8">(f) Final Means</h2><pre class="codeinput">fprintf(<span class="string">"Final Means =\n"</span>);
+fprintf(<span class="string">"%d\n"</span>,means(1));
+fprintf(<span class="string">"%d\n"</span>,means(2));
+fprintf(<span class="string">"%d\n"</span>,means(3));
+fprintf(<span class="string">"\n"</span>);
+pause(0.1);
+</pre><pre class="codeoutput">Final Means =
+5.270334e-01
+6.264939e-01
+3.051477e-01
+
+</pre><h2 id="9">Question</h2><pre class="codeinput"><span class="comment">%Explain if the formulation discussed in class leads to a unique solution. If not, (i) pro-</span>
+<span class="comment">%pose a scheme (in theory) to ensure a unique solution and (ii) implement it.</span>
+</pre><h2 id="10">Solution</h2><pre class="codeinput"><span class="comment">%No, it wont lead to a unique solution. A simple counter case can be</span>
+<span class="comment">%taken as follows: suppose the final means = [a,b,c] is an optimal solution</span>
+<span class="comment">%the any permutation of it, say means = [c,a,b] is also an optimal</span>
+<span class="comment">%solution, with the corresponding channels in membership matrix permuted in same</span>
+<span class="comment">%way. This final solution directly depends on the initial estimates of the</span>
+<span class="comment">%means (Can be seen from the update equations). The final order of the means follows the same order as the initial means.</span>
+<span class="comment">%Hence, by fixing the ordering  of the initial means, say in increasing</span>
+<span class="comment">%order, we would always achieve the same final optimum solution for means.</span>
+
+<span class="comment">%Implementation</span>
+init_means_sorted = sort(init_means);
+[init_membership,final,bias,res_image,membership,objlist,sort_means] = Q1(img_mri_masked,mask,init_means_sorted,ne_mask,q);
+
+<span class="comment">% Final Unique Means</span>
+fprintf(<span class="string">"Unique Means =\n"</span>);
+fprintf(<span class="string">"%d\n"</span>,sort_means(1));
+fprintf(<span class="string">"%d\n"</span>,sort_means(2));
+fprintf(<span class="string">"%d\n"</span>,sort_means(3));
+</pre><pre class="codeoutput">Unique Means =
+3.041189e-01
+5.252590e-01
+6.243770e-01
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+inp = load("../data/assignmentSegmentBrain.mat");
+q = 2;
+
+img_mri = inp.imageData;
+mask = inp.imageMask;
+img_mri_masked = img_mri.*mask;
+ne_mask = fspecial('gaussian',256,1.5);
+[a,b] = find(ne_mask>0);
+ter = img_mri_masked(img_mri_masked>0);
+len = size(ter);
+[ii,init_means] = kmeans(ter,3);
+[init_membership,final,bias,res_image,membership,objlist,means] = Q1(img_mri_masked,mask,init_means,ne_mask,q);
+
+pause(0.1);
+%% (a) q value
+fprintf("q = %d.\n",q);
+% q value is a hyperparameter. The above value of q was chosen since it gave the most optimised cost function
+% and visually appealing Final image.
+pause(0.1);
+%% (b) Neighbourhood mask
+% Following is the neighbourhood mask used. It is gaussian as was suggested
+% to use in slides with sigma  = 1.5, which is again a hyperparameter.
+ne_mask_plot = ne_mask(min(a):max(a),min(b):max(b));
+imagesc(ne_mask_plot);
+colormap(gray);
+title("Neighborhood Mask");
+pause(0.1);
+%% (c) Initial Means
+fprintf("Initial Means =\n");
+fprintf("%d\n",init_means(1));
+fprintf("%d\n",init_means(2));
+fprintf("%d\n",init_means(3));
+% Using the k-means algorithm, we got our initial class means estimate. We
+% used 3 centres as paramter to the k-means functions after passing only
+% foreground values/pixels from the corrupted input image. 
+% k-means would produce ideal cluster centres in case when bias is not
+% there and hence is a good initial estimate to start with. Also at start
+% we have no labeled data, we needed a unsupervosed algorithm and k-means
+% perfectly plays the role.
+pause(0.1);
+%% (d) Initial estimate for memberships
+%Following are the initial membership values shown as images. We used the
+%plain FCM clustering algorithm without bias field correction. The
+%intuition behind is again the fact that we start by assuming there is no
+%bias and get a good estimate for the memeberships to the 3 classes. The
+%implementation is done as mentioned in slides for FCM clustering with the
+%means predicted as by the k-means algorithm.
+
+figure();
+imshow(squeeze(init_membership(1,:,:)));
+title("Initial Membership for Class = 1");
+
+pause(0.1);
+figure();
+imshow(squeeze(init_membership(2,:,:)));
+title("Initial Membership for Class = 2");
+
+pause(0.1);
+figure();
+imshow(squeeze(init_membership(3,:,:)));
+title("Initial Membership for Class = 3");
+
+pause(0.1);
+%% (e) Objective Function Value vs Iteration
+% As we can see, the value of the objective function reduces. We have used
+% the termination criteria as when the change in objective function as
+% compared to previous iteration is less than 1e-4.
+
+i = 1;
+while(objlist(i)>0)
+fprintf("Objective Function Value at iteration %d = %d\n",i,objlist(i));
+i = i+1;
+end    
+
+figure();
+plot(objlist(objlist>0));
+title("Objective function value vs the iteration number")
+
+%% (f) Final Results
+
+pause(0.1);
+figure();
+imshow(inp.imageData);
+title("Corrupted image");
+
+pause(0.1);
+figure();
+imshow(squeeze(membership(1,:,:)));
+title("Optimal Membership for Class = 1");
+
+pause(0.1);
+figure();
+imshow(squeeze(membership(2,:,:)));
+title("Optimal Membership for Class = 2");
+
+pause(0.1);
+figure();
+imshow(squeeze(membership(3,:,:)));
+title("Optimal Membership for Class = 3");
+
+pause(0.1);
+figure();
+imagesc(permute(membership,[2,3,1]));
+title('Final Segmentation based on membership'); 
+
+pause(0.1);
+figure();
+imshow(bias);
+title("Optimal bias-field image estimate");
+
+pause(0.1);
+figure();
+imshow(final);
+title("Bias-removed image");
+
+pause(0.1);
+figure();
+imshow(res_image);
+title("Residual Image");
+
+%% (f) Final Means
+fprintf("Final Means =\n");
+fprintf("%d\n",means(1));
+fprintf("%d\n",means(2));
+fprintf("%d\n",means(3));
+fprintf("\n");
+pause(0.1);
+%% Question
+%Explain if the formulation discussed in class leads to a unique solution. If not, (i) pro-
+%pose a scheme (in theory) to ensure a unique solution and (ii) implement it.
+
+%% Solution 
+%No, it wont lead to a unique solution. A simple counter case can be
+%taken as follows: suppose the final means = [a,b,c] is an optimal solution
+%the any permutation of it, say means = [c,a,b] is also an optimal
+%solution, with the corresponding channels in membership matrix permuted in same
+%way. This final solution directly depends on the initial estimates of the
+%means (Can be seen from the update equations). The final order of the means follows the same order as the initial means. 
+%Hence, by fixing the ordering  of the initial means, say in increasing
+%order, we would always achieve the same final optimum solution for means.
+
+%Implementation
+init_means_sorted = sort(init_means);
+[init_membership,final,bias,res_image,membership,objlist,sort_means] = Q1(img_mri_masked,mask,init_means_sorted,ne_mask,q);
+
+% Final Unique Means
+fprintf("Unique Means =\n");
+fprintf("%d\n",sort_means(1));
+fprintf("%d\n",sort_means(2));
+fprintf("%d\n",sort_means(3));
+
+##### SOURCE END #####
+--></body></html>
