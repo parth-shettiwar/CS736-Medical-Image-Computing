@@ -1,0 +1,371 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>myMainScript</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-04-09"><meta name="DC.source" content="myMainScript.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">(d)Datasets Plot</a></li><li><a href="#3">(e) Mean Pointset and aligned pointsets</a></li><li><a href="#4">(f) Eigenvalues sorted plot</a></li><li><a href="#5">(g) Mean Pointset, Aligned Datapoints and &plusmn; 2&#8211;3 standard deviations around the mean plots</a></li></ul></div><pre class="codeinput">tic;
+data = load(<span class="string">"../../data/hands2D.mat"</span>);
+points = data.shapes;
+new = reshape(points,[2,56*40]);
+sz = 25;
+x = new(1,:);
+y = new(2,:);
+c = linspace(1,10,40);
+d = zeros(1,56*40);
+e=zeros(1,56*41);
+e(1:56*40)=1;
+f = zeros(1,56*40);
+f(1:56*40)=1;
+e(56*40+1:56*41) = 10;
+<span class="keyword">for</span> i = 1:40
+    d(1,1+56*(i-1):56*(i)) = c(i);
+<span class="keyword">end</span>
+pause(0.2);
+</pre><h2 id="2">(d)Datasets Plot</h2><pre class="codeinput">figure;
+hold <span class="string">on</span>;
+scatter(x,y,sz, d,<span class="string">'filled'</span>);
+title(<span class="string">'Data points plotted'</span>);
+hold <span class="string">off</span>;
+[z_mean1,ztot1] = opti1(data);
+[z_mean2,ztot2] = opti2(data);
+
+
+x1 = ztot1(1,:);
+y1 = ztot1(2,:);
+x2 = ztot2(1,:);
+y2 = ztot2(2,:);
+pause(1);
+</pre><img vspace="5" hspace="5" src="myMainScript_01.png" alt=""> <h2 id="3">(e) Mean Pointset and aligned pointsets</h2><pre class="codeinput">figure;
+hold <span class="string">on</span>;
+scatter([x1,z_mean1(1,:)],[y1,z_mean1(2,:)],sz, e,<span class="string">'filled'</span>);
+title(<span class="string">'Code11 Mean pointset and all the aligned pointsets'</span>);
+hold <span class="string">off</span>;
+pause(0.2);
+figure;
+hold <span class="string">on</span>;
+scatter([x2,z_mean2(1,:)],[y2,z_mean2(2,:)],sz, e,<span class="string">'filled'</span>);
+title(<span class="string">'Code22 Mean pointset and all the aligned pointsets'</span>);
+hold <span class="string">off</span>;
+
+[V1,D1] = eigen(ztot1);
+[V2,D2] = eigen(ztot2);
+
+eigenv1 = diag(D1);
+eigenv2 = diag(D2);
+pause(0.2);
+</pre><img vspace="5" hspace="5" src="myMainScript_02.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_03.png" alt=""> <h2 id="4">(f) Eigenvalues sorted plot</h2><pre class="codeinput">figure;
+plot(fliplr(eigenv1.'),<span class="string">'r'</span>);
+title(<span class="string">'Code11 Eigen Values sorted'</span>);
+pause(0.2);
+figure;
+plot(fliplr(eigenv2.'),<span class="string">'r'</span>);
+title(<span class="string">'Code22 Eigen Values sorted'</span>);
+
+V1 = fliplr(V1);
+dev1 = sqrt(fliplr(eigenv1.'));
+deviation11 = dev1(1);
+deviation12 = dev1(2);
+deviation13 = dev1(3);
+
+
+var11p = z_mean1 + 2*deviation11*reshape(V1(:,1),2,56);
+var11n = z_mean1 - 2*deviation11*reshape(V1(:,1),2,56);
+
+var12p = z_mean1 + 2*deviation12*reshape(V1(:,2),2,56);
+var12n = z_mean1 - 2*deviation12*reshape(V1(:,2),2,56);
+
+var13p = z_mean1 + 2*deviation13*reshape(V1(:,3),2,56);
+var13n = z_mean1 - 2*deviation13*reshape(V1(:,3),2,56);
+pause(0.2);
+</pre><img vspace="5" hspace="5" src="myMainScript_04.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_05.png" alt=""> <h2 id="5">(g) Mean Pointset, Aligned Datapoints and &plusmn; 2&#8211;3 standard deviations around the mean plots</h2><pre class="codeinput">figure;
+hold <span class="string">on</span>;
+scatter(x1,y1,sz, f,<span class="string">'filled'</span>);
+plotc(var11p(1,:),var11p(2,:),<span class="string">'-b'</span>,<span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+plotc(var11n(1,:),var11n(2,:),<span class="string">'b'</span>,<span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+plotc(z_mean1(1,:),z_mean1(2,:),<span class="string">'r'</span>,<span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'r'</span>);
+title(<span class="string">'Code11 First mode of variation'</span>);
+hold <span class="string">off</span>;
+pause(0.2);
+figure;
+hold <span class="string">on</span>;
+scatter(x1,y1,sz, f,<span class="string">'filled'</span>);
+plotc(var12p(1,:),var12p(2,:),<span class="string">'b'</span>,<span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+plotc(var12n(1,:),var12n(2,:),<span class="string">'b'</span>,<span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+plotc(z_mean1(1,:),z_mean1(2,:),<span class="string">'r'</span>,<span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'r'</span>);
+title(<span class="string">'Code11 Second mode of variation'</span>);
+hold <span class="string">off</span>;
+pause(0.2);
+figure;
+hold <span class="string">on</span>;
+scatter(x1,y1,sz, f,<span class="string">'filled'</span>);
+plotc(var13p(1,:),var13p(2,:),<span class="string">'b'</span>,<span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+plotc(var13n(1,:),var13n(2,:),<span class="string">'b'</span>,<span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+plotc(z_mean1(1,:),z_mean1(2,:),<span class="string">'r'</span>,<span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'r'</span>);
+title(<span class="string">'Code11 Third mode of variation'</span>);
+hold <span class="string">off</span>;
+
+
+V2 = fliplr(V2);
+dev2 = sqrt(fliplr(eigenv2.'));
+deviation21 = dev2(1);
+deviation22 = dev2(2);
+deviation23 = dev2(3);
+
+var21p = z_mean1 + 2*deviation21*reshape(V2(:,1),2,56);
+var21n = z_mean1 - 2*deviation21*reshape(V2(:,1),2,56);
+
+var22p = z_mean1 + 2*deviation22*reshape(V2(:,2),2,56);
+var22n = z_mean1 - 2*deviation22*reshape(V2(:,2),2,56);
+
+var23p = z_mean1 + 2*deviation23*reshape(V2(:,3),2,56);
+var23n = z_mean1 - 2*deviation23*reshape(V2(:,3),2,56);
+
+pause(0.2);
+figure;
+hold <span class="string">on</span>;
+scatter(x2,y2,sz, f,<span class="string">'filled'</span>);
+plotc(var21p(1,:),var21p(2,:),<span class="string">'b'</span>,<span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+plotc(var21n(1,:),var21n(2,:),<span class="string">'b'</span>,<span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+plotc(z_mean1(1,:),z_mean1(2,:),<span class="string">'r'</span>,<span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'r'</span>);
+title(<span class="string">'Code22 First mode of variation'</span>);
+hold <span class="string">off</span>;
+pause(0.2);
+figure;
+hold <span class="string">on</span>;
+scatter(x2,y2,sz, f,<span class="string">'filled'</span>);
+plotc(var22p(1,:),var22p(2,:),<span class="string">'b'</span>,<span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+plotc(var22n(1,:),var22n(2,:),<span class="string">'b'</span>,<span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+plotc(z_mean1(1,:),z_mean1(2,:),<span class="string">'r'</span>,<span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'r'</span>);
+title(<span class="string">'Code22 Second mode of variation'</span>);
+hold <span class="string">off</span>;
+pause(0.2);
+figure;
+hold <span class="string">on</span>;
+scatter(x2,y2,sz, f,<span class="string">'filled'</span>);
+plotc(var23p(1,:),var23p(2,:),<span class="string">'b'</span>,<span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+plotc(var23n(1,:),var23n(2,:),<span class="string">'b'</span>,<span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+plotc(z_mean1(1,:),z_mean1(2,:),<span class="string">'r'</span>,<span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'r'</span>);
+title(<span class="string">'Code22 Third mode of variation'</span>);
+hold <span class="string">off</span>;
+toc;
+</pre><pre class="codeoutput">Elapsed time is 5.224692 seconds.
+</pre><img vspace="5" hspace="5" src="myMainScript_06.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_07.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_08.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_09.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_10.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_11.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+tic;
+data = load("../../data/hands2D.mat");
+points = data.shapes;
+new = reshape(points,[2,56*40]);
+sz = 25;
+x = new(1,:);
+y = new(2,:);
+c = linspace(1,10,40);
+d = zeros(1,56*40);
+e=zeros(1,56*41);
+e(1:56*40)=1;
+f = zeros(1,56*40);
+f(1:56*40)=1;
+e(56*40+1:56*41) = 10;
+for i = 1:40
+    d(1,1+56*(i-1):56*(i)) = c(i);
+end
+pause(0.2);
+%% (d)Datasets Plot
+figure;
+hold on;
+scatter(x,y,sz, d,'filled');
+title('Data points plotted');
+hold off;
+[z_mean1,ztot1] = opti1(data);
+[z_mean2,ztot2] = opti2(data);
+
+
+x1 = ztot1(1,:);
+y1 = ztot1(2,:);
+x2 = ztot2(1,:);
+y2 = ztot2(2,:);
+pause(1);
+%% (e) Mean Pointset and aligned pointsets
+figure;
+hold on;
+scatter([x1,z_mean1(1,:)],[y1,z_mean1(2,:)],sz, e,'filled');
+title('Code11 Mean pointset and all the aligned pointsets');
+hold off;
+pause(0.2);
+figure;
+hold on;
+scatter([x2,z_mean2(1,:)],[y2,z_mean2(2,:)],sz, e,'filled');
+title('Code22 Mean pointset and all the aligned pointsets');
+hold off;
+
+[V1,D1] = eigen(ztot1);
+[V2,D2] = eigen(ztot2);
+
+eigenv1 = diag(D1);
+eigenv2 = diag(D2);
+pause(0.2);
+%% (f) Eigenvalues sorted plot
+
+figure;
+plot(fliplr(eigenv1.'),'r');
+title('Code11 Eigen Values sorted');
+pause(0.2);
+figure;
+plot(fliplr(eigenv2.'),'r');
+title('Code22 Eigen Values sorted');
+
+V1 = fliplr(V1);
+dev1 = sqrt(fliplr(eigenv1.'));
+deviation11 = dev1(1);
+deviation12 = dev1(2);
+deviation13 = dev1(3);
+
+
+var11p = z_mean1 + 2*deviation11*reshape(V1(:,1),2,56);
+var11n = z_mean1 - 2*deviation11*reshape(V1(:,1),2,56);
+
+var12p = z_mean1 + 2*deviation12*reshape(V1(:,2),2,56);
+var12n = z_mean1 - 2*deviation12*reshape(V1(:,2),2,56);
+
+var13p = z_mean1 + 2*deviation13*reshape(V1(:,3),2,56);
+var13n = z_mean1 - 2*deviation13*reshape(V1(:,3),2,56);
+pause(0.2);
+%% (g) Mean Pointset, Aligned Datapoints and ± 2–3 standard deviations around the mean plots
+figure;
+hold on;
+scatter(x1,y1,sz, f,'filled');
+plotc(var11p(1,:),var11p(2,:),'-b','Marker','o','MarkerFaceColor','b');
+plotc(var11n(1,:),var11n(2,:),'b','Marker','o','MarkerFaceColor','b');
+plotc(z_mean1(1,:),z_mean1(2,:),'r','Marker','o','MarkerFaceColor','r');
+title('Code11 First mode of variation');
+hold off;
+pause(0.2);
+figure;
+hold on;
+scatter(x1,y1,sz, f,'filled');
+plotc(var12p(1,:),var12p(2,:),'b','Marker','o','MarkerFaceColor','b');
+plotc(var12n(1,:),var12n(2,:),'b','Marker','o','MarkerFaceColor','b');
+plotc(z_mean1(1,:),z_mean1(2,:),'r','Marker','o','MarkerFaceColor','r');
+title('Code11 Second mode of variation');
+hold off;
+pause(0.2);
+figure;
+hold on;
+scatter(x1,y1,sz, f,'filled');
+plotc(var13p(1,:),var13p(2,:),'b','Marker','o','MarkerFaceColor','b');
+plotc(var13n(1,:),var13n(2,:),'b','Marker','o','MarkerFaceColor','b');
+plotc(z_mean1(1,:),z_mean1(2,:),'r','Marker','o','MarkerFaceColor','r');
+title('Code11 Third mode of variation');
+hold off;
+
+
+V2 = fliplr(V2);
+dev2 = sqrt(fliplr(eigenv2.'));
+deviation21 = dev2(1);
+deviation22 = dev2(2);
+deviation23 = dev2(3);
+
+var21p = z_mean1 + 2*deviation21*reshape(V2(:,1),2,56);
+var21n = z_mean1 - 2*deviation21*reshape(V2(:,1),2,56);
+
+var22p = z_mean1 + 2*deviation22*reshape(V2(:,2),2,56);
+var22n = z_mean1 - 2*deviation22*reshape(V2(:,2),2,56);
+
+var23p = z_mean1 + 2*deviation23*reshape(V2(:,3),2,56);
+var23n = z_mean1 - 2*deviation23*reshape(V2(:,3),2,56);
+
+pause(0.2);
+figure;
+hold on;
+scatter(x2,y2,sz, f,'filled');
+plotc(var21p(1,:),var21p(2,:),'b','Marker','o','MarkerFaceColor','b');
+plotc(var21n(1,:),var21n(2,:),'b','Marker','o','MarkerFaceColor','b');
+plotc(z_mean1(1,:),z_mean1(2,:),'r','Marker','o','MarkerFaceColor','r');
+title('Code22 First mode of variation');
+hold off;
+pause(0.2);
+figure;
+hold on;
+scatter(x2,y2,sz, f,'filled');
+plotc(var22p(1,:),var22p(2,:),'b','Marker','o','MarkerFaceColor','b');
+plotc(var22n(1,:),var22n(2,:),'b','Marker','o','MarkerFaceColor','b');
+plotc(z_mean1(1,:),z_mean1(2,:),'r','Marker','o','MarkerFaceColor','r');
+title('Code22 Second mode of variation');
+hold off;
+pause(0.2);
+figure;
+hold on;
+scatter(x2,y2,sz, f,'filled');
+plotc(var23p(1,:),var23p(2,:),'b','Marker','o','MarkerFaceColor','b');
+plotc(var23n(1,:),var23n(2,:),'b','Marker','o','MarkerFaceColor','b');
+plotc(z_mean1(1,:),z_mean1(2,:),'r','Marker','o','MarkerFaceColor','r');
+title('Code22 Third mode of variation');
+hold off;
+toc;
+
+
+##### SOURCE END #####
+--></body></html>

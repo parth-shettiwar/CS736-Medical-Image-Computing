@@ -1,19 +1,19 @@
 tic;
-data = load("../data/ellipses2D.mat");
-points = data.pointSets;
-new = reshape(points,[2,9600]);
+data = load("../../data/hands2D.mat");
+points = data.shapes;
+new = reshape(points,[2,56*40]);
 sz = 25;
 x = new(1,:);
 y = new(2,:);
-c = linspace(1,10,300);
-d = zeros(1,9600);
-e=zeros(1,9632);
-e(1:9600)=1;
-f = zeros(1,9600);
-f(1:9600)=1;
-e(9601:9632) = 10;
-for i = 1:300
-    d(1,1+32*(i-1):32*(i)) = c(i);
+c = linspace(1,10,40);
+d = zeros(1,56*40);
+e=zeros(1,56*41);
+e(1:56*40)=1;
+f = zeros(1,56*40);
+f(1:56*40)=1;
+e(56*40+1:56*41) = 10;
+for i = 1:40
+    d(1,1+56*(i-1):56*(i)) = c(i);
 end
 pause(0.2);
 %% (d)Datasets Plot
@@ -30,7 +30,7 @@ x1 = ztot1(1,:);
 y1 = ztot1(2,:);
 x2 = ztot2(1,:);
 y2 = ztot2(2,:);
-pause(0.5);
+pause(1);
 %% (e) Mean Pointset and aligned pointsets
 figure;
 hold on;
@@ -67,14 +67,14 @@ deviation12 = dev1(2);
 deviation13 = dev1(3);
 
 
-var11p = z_mean1 + 2*deviation11*reshape(V1(:,1),2,data.numOfPoints);
-var11n = z_mean1 - 2*deviation11*reshape(V1(:,1),2,data.numOfPoints);
+var11p = z_mean1 + 2*deviation11*reshape(V1(:,1),2,56);
+var11n = z_mean1 - 2*deviation11*reshape(V1(:,1),2,56);
 
-var12p = z_mean1 + 2*deviation12*reshape(V1(:,2),2,data.numOfPoints);
-var12n = z_mean1 - 2*deviation12*reshape(V1(:,2),2,data.numOfPoints);
+var12p = z_mean1 + 2*deviation12*reshape(V1(:,2),2,56);
+var12n = z_mean1 - 2*deviation12*reshape(V1(:,2),2,56);
 
-var13p = z_mean1 + 2*deviation13*reshape(V1(:,3),2,data.numOfPoints);
-var13n = z_mean1 - 2*deviation13*reshape(V1(:,3),2,data.numOfPoints);
+var13p = z_mean1 + 2*deviation13*reshape(V1(:,3),2,56);
+var13n = z_mean1 - 2*deviation13*reshape(V1(:,3),2,56);
 pause(0.2);
 %% (g) Mean Pointset, Aligned Datapoints and ± 2–3 standard deviations around the mean plots
 figure;
@@ -111,14 +111,14 @@ deviation21 = dev2(1);
 deviation22 = dev2(2);
 deviation23 = dev2(3);
 
-var21p = z_mean1 + 2*deviation21*reshape(V2(:,1),2,data.numOfPoints);
-var21n = z_mean1 - 2*deviation21*reshape(V2(:,1),2,data.numOfPoints);
+var21p = z_mean1 + 2*deviation21*reshape(V2(:,1),2,56);
+var21n = z_mean1 - 2*deviation21*reshape(V2(:,1),2,56);
 
-var22p = z_mean1 + 2*deviation22*reshape(V2(:,2),2,data.numOfPoints);
-var22n = z_mean1 - 2*deviation22*reshape(V2(:,2),2,data.numOfPoints);
+var22p = z_mean1 + 2*deviation22*reshape(V2(:,2),2,56);
+var22n = z_mean1 - 2*deviation22*reshape(V2(:,2),2,56);
 
-var23p = z_mean1 + 2*deviation23*reshape(V2(:,3),2,data.numOfPoints);
-var23n = z_mean1 - 2*deviation23*reshape(V2(:,3),2,data.numOfPoints);
+var23p = z_mean1 + 2*deviation23*reshape(V2(:,3),2,56);
+var23n = z_mean1 - 2*deviation23*reshape(V2(:,3),2,56);
 
 pause(0.2);
 figure;
